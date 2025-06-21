@@ -1,9 +1,12 @@
 #pragma once
-#include<SDL2/SDL.h>
-#include<SDL2/SDL_image.h>
-#include<iostream>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <iostream>
+#include <memory>
 
 #include "Entity.hpp"
+#include "Map.hpp"
+#include "constants.h"
 
 struct RenderWindow {
 	SDL_Window* window;
@@ -27,17 +30,22 @@ struct RenderWindow {
 
         return texture;
     }
-    void render(Entity& en) {
+    void render(Entity* en) {
         SDL_Rect src, dest;
 
-        src = en.getFrame();
-        const vec2f& pos = en.getPos();
+        src = en->getFrame();
+        const vec2f& pos = en->getPos();
         dest.x = pos.x;
         dest.y = pos.y;
-        dest.w = en.scale * en.getFrame().w;
-        dest.h = en.scale * en.getFrame().h;
+        dest.w = en->scale * en->getFrame().w;
+        dest.h = en->scale * en->getFrame().h;
 
-        SDL_RenderCopy(renderer, en.getTexture(), &src, &dest);
+        SDL_RenderCopy(renderer, en->getTexture(), &src, &dest);
+    }
+    void render(Map& mapa) {
+        for (auto& en : mapa.ens) {
+            render(en.get());
+        }
     }
     void clear() { SDL_RenderClear(renderer); }
     void display() { SDL_RenderPresent(renderer); }

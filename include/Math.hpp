@@ -26,6 +26,16 @@ struct vec2f {
         return vec2f(x + oth.x, y + oth.y);
     }
 
+    vec2f operator * (double f) {
+        return vec2f(x * f, y * f);
+    }
+    
+    vec2f& operator *= (double f) {
+        x *= f;
+        y *= f;
+        return *this;
+    }
+
     void print() {
         std::cout << "(" << x << ", " << y << ")" << std::endl;
     }
