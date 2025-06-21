@@ -21,6 +21,7 @@ int main(int argv, char* args[]) {
 
     RenderWindow win("RPG - hehe", WIDTH, HEIGHT);
     SDL_Texture* grass = win.loadTexture("res/gfx/ground_grass_1.png");
+    SDL_Texture* plat = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/platforms.png");
     std::vector<Entity> grass_blocks;
 
     SDL_Rect grass_rect;
@@ -28,16 +29,16 @@ int main(int argv, char* args[]) {
     grass_rect.w = grass_rect.h = 32;
 
     for (int i = 0; i < FLOOR_SIZE; i++) {
-        grass_blocks.emplace_back(vec2f(32 * i, HEIGHT - 32), grass, grass_rect);
+        grass_blocks.emplace_back(vec2f(32 * i, HEIGHT - 32), grass, grass_rect, 1);
     }
 
     std::vector<Entity> platforms;
     SDL_Rect plat_rect;
     plat_rect.x = plat_rect.y = 0;
-    plat_rect.w = 32;
+    plat_rect.w = 16;
     plat_rect.h = 8;
     for (int i = 1; i <= 5; i++) {
-        platforms.emplace_back(vec2f(0, HEIGHT - 100 * i), grass, plat_rect);
+        platforms.emplace_back(vec2f(0, HEIGHT - 100 * i), plat, plat_rect, 3);
     }
 
     bool running = true;

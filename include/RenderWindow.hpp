@@ -34,8 +34,8 @@ struct RenderWindow {
         const vec2f& pos = en.getPos();
         dest.x = pos.x;
         dest.y = pos.y;
-        dest.w = en.getFrame().w;
-        dest.h = en.getFrame().h;
+        dest.w = en.scale * en.getFrame().w;
+        dest.h = en.scale * en.getFrame().h;
 
         SDL_RenderCopy(renderer, en.getTexture(), &src, &dest);
     }

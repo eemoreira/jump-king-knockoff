@@ -9,8 +9,9 @@ struct Entity {
     vec2f pos;
     SDL_Texture* texture;
     SDL_Rect frame;
+    int scale;
 
-    Entity(vec2f _pos, SDL_Texture* _texture, SDL_Rect _frame): pos(_pos), texture(_texture), frame(_frame) {
+    Entity(vec2f _pos, SDL_Texture* _texture, SDL_Rect _frame, int _scale): pos(_pos), texture(_texture), frame(_frame), scale(_scale) {
     }
 
     vec2f getPos() { return pos; }
@@ -21,9 +22,9 @@ struct Entity {
         pos += to;
         pos.print();
         if (pos.x < 0) pos.x = 0;
-        if (pos.x + frame.w > BOUND_WIDTH) pos.x = BOUND_WIDTH - frame.w;
+        if (pos.x + scale * frame.w > BOUND_WIDTH) pos.x = BOUND_WIDTH - scale * frame.w;
         if (pos.y < 0) pos.y = 0;
-        if (pos.y + frame.h > BOUND_HEIGHT) pos.y = BOUND_HEIGHT - frame.h;
+        if (pos.y + scale * frame.h > BOUND_HEIGHT) pos.y = BOUND_HEIGHT - scale * frame.h;
         return pos;
     }
 
