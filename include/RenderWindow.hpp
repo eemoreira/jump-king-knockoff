@@ -30,21 +30,28 @@ struct RenderWindow {
 
         return texture;
     }
-    void render(Entity* en) {
+    void renderEntity(Entity* en) {
         SDL_Rect src, dest;
 
-        src = en->getFrame();
-        const vec2f& pos = en->getPos();
+        src = en->frame;
+        const vec2f& pos = en->pos;
         dest.x = pos.x;
         dest.y = pos.y;
-        dest.w = en->scale * en->getFrame().w;
-        dest.h = en->scale * en->getFrame().h;
+        dest.w = en->scale * en->frame.w;
+        dest.h = en->scale * en->frame.h;
 
-        SDL_RenderCopy(renderer, en->getTexture(), &src, &dest);
+        SDL_RenderCopy(renderer, en->texture, &src, &dest);
+    }
+    void renderRectangle(Rectangle* shape) {
+        std::array<int, 6> ind = {{0, 1, 2, 0, 2, 3}};
+        int ok = SDL_RenderGeometry(renderer, shape->texture, (shape->vertex).data(), (shape->vertex).size(), ind.data(), 6); 
     }
     void render(Map& mapa) {
         for (auto& en : mapa.ens) {
-            render(en.get());
+            renderEntity(en.get());
+        }
+        for (auto& block : mapa.blocks) {
+            renderRectangle(block.get());
         }
     }
     void clear() { SDL_RenderClear(renderer); }

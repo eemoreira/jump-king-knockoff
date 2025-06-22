@@ -14,4 +14,4 @@ const vec2f PLAYER_UP(0, -VELOCITY);
 const vec2f PLAYER_DOWN(0, VELOCITY);
 const uint32_t FPS = 60;
 const int frame_delay = 1000 / FPS;
-const int TIME_TOLERANCE = 1000 / (FPS / 3);
+const int TIME_TOLERANCE = 0;

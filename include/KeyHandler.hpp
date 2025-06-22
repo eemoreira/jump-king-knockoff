@@ -12,23 +12,12 @@ struct KeyHandler {
         Keys[ken.keysym.scancode] = ken;
     }
 
-    bool is_pressed(SDL_Scancode code) {
-        return Keys[code].state == SDL_PRESSED;
+    bool is_pressed(SDL_Scancode code, uint64_t current_time, uint64_t tolerance) {
+        return Keys[code].state == SDL_PRESSED && current_time - Keys[code].timestamp <= tolerance;
     }
 
-    bool is_released(SDL_Scancode code) {
-        return Keys[code].state == SDL_RELEASED;
-    }
-
-    std::vector<SDL_KeyboardEvent> get_key_events(uint64_t current_time, uint64_t tolerance) {
-        std::vector<SDL_KeyboardEvent> events;
-
-        for (int i = 0; i < 1 << 9; i++) {
-            if (current_time - Keys[i].timestamp > tolerance) continue;
-            events.emplace_back(Keys[i]);
-        }
-
-        return events;
+    bool is_released(SDL_Scancode code, uint64_t current_time, uint64_t tolerance) {
+        return Keys[code].state == SDL_RELEASED && current_time - Keys[code].timestamp <= tolerance;
     }
 
     KeyHandler() { 
