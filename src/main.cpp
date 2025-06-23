@@ -91,7 +91,7 @@ int main(int argv, char* args[]) {
     for (int i = 0; i < 2; i++) {
         auto rec = std::make_unique<Rectangle>(
                 block,
-                vec2f(150, i * 200),
+                vec2f(400 * i, i * 300),
                 200,
                 300
         );

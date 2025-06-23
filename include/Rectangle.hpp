@@ -2,9 +2,11 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include "Math.hpp"
 
 struct Rectangle {
     std::array<SDL_Vertex, 4> vertex;
+    std::array<Segment, 4> segments;
     SDL_Texture* texture;
     vec2f pos;
     double w, h;
@@ -36,6 +38,11 @@ struct Rectangle {
             vertex[1] = bottom_left;
             vertex[2] = bottom_right;
             vertex[3] = top_right;
+
+            segments[0] = Segment(vec2f(pos.x, pos.y), vec2f(pos.x, pos.y + h));
+            segments[1] = Segment(vec2f(pos.x, pos.y + h), vec2f(pos.x + w, pos.y + h));
+            segments[2] = Segment(vec2f(pos.x + w, pos.y + h), vec2f(pos.x + w, pos.y));
+            segments[3] = Segment(vec2f(pos.x + w, pos.y), vec2f(pos.x, pos.y));
     }
 };
 

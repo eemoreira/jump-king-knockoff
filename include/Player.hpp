@@ -21,7 +21,7 @@ struct Player : Entity {
       // std::cout << "BUFFER HELD = ";
       // buffer_held.print();
         vel += buffer_held;
-        vel += facing_right ? vec2f(0.5, 0) : vec2f(-0.5, 0);
+        vel += facing_right ? vec2f(0.05, 0) : vec2f(-0.05, 0);
         reset_boost();
         accel = vec2f(0, 0.0008); // gravidade :O
     }
@@ -57,9 +57,18 @@ struct Player : Entity {
         //accel.print();
         pos += vel;
         vel += accel;
-        if (pos.x < 0) pos.x = 0;
-        if (pos.x + scale * frame.w > BOUND_WIDTH) pos.x = BOUND_WIDTH - scale * frame.w;
-        if (pos.y < 0) pos.y = 0;
+        if (pos.x < 0) {
+            //pos.x = 0;
+            vel = vel.reflect_by(vec2f(1, 0));
+        }
+        if (pos.x + scale * frame.w > BOUND_WIDTH) {
+            //pos.x = BOUND_WIDTH - scale * frame.w;
+            vel = vel.reflect_by(vec2f(-1, 0));
+        }
+        if (pos.y < 0) {
+            //pos.y = 0;
+            vel = vel.reflect_by(vec2f(0, 1));
+        }
         if (pos.y + scale * frame.h > BOUND_HEIGHT) {
             accel = vec2f(0, 0);
             vel = vec2f(0, 0);
@@ -69,50 +78,47 @@ struct Player : Entity {
         return pos;
     }
 
+    bool bounding_box_inter(Rectangle* rec) {
+        double f_x_right = (pos).x + (frame).w * (scale);
+        double f_y_down = (pos).y + (frame).h * (scale);
+
+        double g_x_right = (rec->pos).x + (rec)->w;
+        double g_y_down = (rec->pos).y + (rec)->h;
+
+        double f_x_left = (pos).x;
+        double g_x_left = (rec->pos).x;
+
+        double f_y_up = (pos).y;
+        double g_y_up = (rec->pos).y;
+
+        bool x_intersect = inside(f_x_left, g_x_left, g_x_right) || inside(f_x_right, g_x_left, g_x_right);
+        bool y_intersect = inside(f_y_up, g_y_up, g_y_down) || inside(f_y_down, g_y_up, g_y_down);
+
+        return x_intersect && y_intersect;
+    }
+
     void collide_with(Rectangle* rec) override {
-        double left_most = pos.x;
-        double right_most = pos.x + scale * frame.w;
-
-        double top_most = pos.y;
-        double bottom_most = pos.y + scale * frame.h;
-
-        double rec_left_most = rec->pos.x;
-        double rec_right_most = rec->pos.x + rec->w;
-
-        double rec_top_most = rec->pos.y;
-        double rec_bottom_most = rec->pos.y + rec->h;
-
-        bool y_intersect = inside(top_most, rec_top_most, rec_bottom_most) ||
-                           inside(bottom_most, rec_top_most, rec_bottom_most);
-
-        if (!y_intersect) return;
-
-        if (inside(left_most, rec_left_most, rec_right_most)) {
-        std::cout << "trying (" << left_most << ", " << right_most << ") to collide with (" 
-            << rec_left_most << ", " << rec_right_most << ")" << std::endl;
-            // batendo na parte esquerda do retangulo
-
-            std::cout << "vel before: ";
-            vel.print();
-            vel = vel.reflect_by(vec2f(0, 1));
-            std::cout << std::endl << "vel after: ";
-            vel.print();
-            std::cout << std::endl;
-            return;
-        }
-
-        if (inside(right_most, rec_left_most, rec_right_most)) {
-        std::cout << "trying (" << left_most << ", " << right_most << ") to collide with (" 
-            << rec_left_most << ", " << rec_right_most << ")" << std::endl;
-            // batendo na parte esquerda do retangulo
-
-            std::cout << "vel before: ";
-            vel.print();
-            vel = vel.reflect_by(vec2f(0, -1));
-            std::cout << std::endl << "vel after: ";
-            vel.print();
-            std::cout << std::endl;
-            return;
+        if (!bounding_box_inter(rec)) return;
+        auto& segs = rec->segments; 
+        vec2f center(vec2f(pos.x + frame.w/2, pos.y + frame.h/2));
+        double dist = (pos - center).norm();
+        Segment my_segment(center, center + vel.unity() * dist);
+        for (auto& se : segs) {
+            auto [has_intersection, inter] = my_segment.intersect(se);
+            if (has_intersection) {
+                vec2f normal = se.normal();
+                std::cout << "INTERSECT segment :";
+                se.p.print();
+                std::cout << ", ";
+                se.q.print();
+                std::cout << ",";
+                std::cout << " NORMAL: ";
+                normal.print();
+                std::cout << std::endl;
+                vel = vel.reflect_by(normal);
+                //vel = vec2f(0, 0);
+                return;
+            }
         }
     }
 

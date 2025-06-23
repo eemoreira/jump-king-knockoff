@@ -41,9 +41,6 @@ struct Entity {
         return pos;
     }
 
-    bool inside(double me, double l, double r) {
-        return me >= l && me <= r;
-    }
 
     virtual void collide_with(Rectangle* oth) {}
 
