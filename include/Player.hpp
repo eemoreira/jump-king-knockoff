@@ -70,7 +70,7 @@ struct Player : Entity {
 
     void reset_movement() {
         vel = accel = vec2f(0, 0);
-        //std::cout << "GRAVITY NOT WORKING" << std::endl;
+        std::cout << "RESETING MOVEMENT" << std::endl;
     }
 
     void reset_gravity() override {
@@ -97,35 +97,40 @@ struct Player : Entity {
         //std::cout << "Player move bounded with vel: ";
         //std::cout << "And acceleration: ";
         move();
+        Side ret = NONE;
         if (pos.x < 0) {
-            vel = vel.reflect_by(vec2f(1, 0));
-            //if (std::abs(vel.x) > 1e-9) {
-                std::cout << "LEFT WALL with vel = " << vel << std::endl;
-            //}
-            return LEFT;
+            //vel = vel.reflect_by(vec2f(1, 0));
+            vel.x = 0;
+            pos.x = 0;
+            //std::cout << "LEFT WALL with vel = " << vel << std::endl;
+            ret = LEFT;
         }
+
         if (pos.x + scale * frame.w > BOUND_WIDTH) {
-            vel = vel.reflect_by(vec2f(-1, 0));
-            //if (std::abs(vel.x) > 1e-9) {
-                std::cout << "RIGHT WALL with vel = " << vel << std::endl;
-            //}
-            return RIGHT;
+            //vel = vel.reflect_by(vec2f(-1, 0));
+            vel.x = 0;
+            pos.x = BOUND_WIDTH - scale * frame.w;
+            //std::cout << "RIGHT WALL with vel = " << vel << std::endl;
+            ret = RIGHT;
         }
+
         if (pos.y < 0) {
             vel = vel.reflect_by(vec2f(0, 1));
-            return UP;
+            ret = UP;
         }
+
         if (pos.y + scale * frame.h > BOUND_HEIGHT) {
             //std::cout << "GROUNDED ON FLOOR, on_top = " << GROUND_LEFT_BOUND << ", " << GROUND_RIGHT_BOUND 
              //   << ", vel = " << vel << " accell = " << accel << std::endl;
             vel.y = 0;
             make_grounded(Segment(GROUND_LEFT_BOUND, GROUND_RIGHT_BOUND, DOWN));
-            return DOWN;
+            ret = DOWN;
         }
 
-        std::cout << "NO WALL" << std::endl;
-
-        return NONE;
+        if (ret == NONE) {
+            //std::cout << "NO WALL" << std::endl;
+        }
+        return ret;
     }
 
     bool bounding_box_inter(Rectangle* rec) {
