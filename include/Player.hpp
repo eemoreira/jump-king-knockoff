@@ -140,7 +140,6 @@ struct Player : Entity {
 
         float f_y_up = (pos).y;
         float g_y_up = (rec->pos).y;
-
         bool x_intersect = inside(f_x_left, g_x_left, g_x_right) || inside(f_x_right, g_x_left, g_x_right);
         bool y_intersect = inside(f_y_up, g_y_up, g_y_down) || inside(f_y_down, g_y_up, g_y_down);
 
