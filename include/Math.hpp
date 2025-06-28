@@ -5,6 +5,8 @@
 #include <utility>
 
 bool inside(float me, float l, float r) {
+    return me >= l && me <= r;
+}
 
 struct vec2f {
     float x, y;
