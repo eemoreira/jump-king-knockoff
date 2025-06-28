@@ -6,7 +6,7 @@ DEBUG_DIR := $(BIN_DIR)/debug
 RELEASE_DIR := $(BIN_DIR)/release
 
 CXX := g++
-CXXFLAGS := -std=c++17 -m64 -Wall -I$(INC_DIR)
+CXXFLAGS := -std=c++20 -m64 -Wall -I$(INC_DIR)
 LDFLAGS := -lSDL2 -lSDL2main -lSDL2_image
 
 SOURCES := $(wildcard $(SRC_DIR)/*.cpp)

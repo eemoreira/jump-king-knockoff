@@ -3,15 +3,17 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "Math.hpp"
+#include "Segment.hpp"
+#include "constants.h"
 
 struct Rectangle {
     std::array<SDL_Vertex, 4> vertex;
     std::array<Segment, 4> segments;
     SDL_Texture* texture;
     vec2f pos;
-    double w, h;
+    float w, h;
 
-    Rectangle(SDL_Texture* _texture, vec2f _pos, double _w, double _h) 
+    Rectangle(SDL_Texture* _texture, vec2f _pos, float _w, float _h) 
         : texture(_texture), pos(_pos), w(_w), h(_h) {
             SDL_Vertex top_left;
             top_left.position = {pos.x, pos.y};
@@ -39,10 +41,10 @@ struct Rectangle {
             vertex[2] = bottom_right;
             vertex[3] = top_right;
 
-            segments[0] = Segment(vec2f(pos.x, pos.y), vec2f(pos.x, pos.y + h));
-            segments[1] = Segment(vec2f(pos.x, pos.y + h), vec2f(pos.x + w, pos.y + h));
-            segments[2] = Segment(vec2f(pos.x + w, pos.y + h), vec2f(pos.x + w, pos.y));
-            segments[3] = Segment(vec2f(pos.x + w, pos.y), vec2f(pos.x, pos.y));
+            segments[0] = Segment(vec2f(pos.x, pos.y), vec2f(pos.x, pos.y + h), LEFT);
+            segments[1] = Segment(vec2f(pos.x, pos.y + h), vec2f(pos.x + w, pos.y + h), DOWN);
+            segments[2] = Segment(vec2f(pos.x + w, pos.y + h), vec2f(pos.x + w, pos.y), RIGHT);
+            segments[3] = Segment(vec2f(pos.x + w, pos.y), vec2f(pos.x, pos.y), UP);
     }
 };
 

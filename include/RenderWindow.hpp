@@ -44,7 +44,7 @@ struct RenderWindow {
     }
     void renderRectangle(Rectangle* shape) {
         std::array<int, 6> ind = {{0, 1, 2, 0, 2, 3}};
-        int ok = SDL_RenderGeometry(renderer, shape->texture, (shape->vertex).data(), (shape->vertex).size(), ind.data(), 6); 
+        SDL_RenderGeometry(renderer, shape->texture, (shape->vertex).data(), (shape->vertex).size(), ind.data(), 6); 
     }
     void render(Map& mapa) {
         for (auto& en : mapa.ens) {

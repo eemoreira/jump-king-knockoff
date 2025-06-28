@@ -25,7 +25,7 @@ int main(int argv, char* args[]) {
 
     RenderWindow win("jump king - hehe", WIDTH, HEIGHT);
 
-    SDL_Texture* grass = win.loadTexture("res/gfx/ground_grass_1.png");
+    //SDL_Texture* grass = win.loadTexture("res/gfx/ground_grass_1.png");
     SDL_Texture* block = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/block.png");
 //    SDL_Texture* plat = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/platforms.png");
     SDL_Texture* static_knight = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/static_knight.png");
@@ -78,7 +78,7 @@ int main(int argv, char* args[]) {
     player_rect.h = 19;
 
     std::unique_ptr<Player> player_ptr = std::make_unique<Player>(
-            vec2f(0, HEIGHT - 4*player_rect.h),
+            vec2f(100, HEIGHT - 4*player_rect.h),
             static_knight, 
             player_rect, 
             4
@@ -103,6 +103,7 @@ int main(int argv, char* args[]) {
     SDL_Event event;
 
     uint64_t currentFrame = 0;
+    SDL_Delay(1000);
     while (running) {
 
         uint64_t first_frame = SDL_GetTicks();
@@ -117,14 +118,14 @@ int main(int argv, char* args[]) {
         }
 
 
-        bool R_PRESSED = key_handler.is_pressed(SDL_SCANCODE_RIGHT, SDL_GetTicks(), TIME_TOLERANCE); 
-        bool L_PRESSED = key_handler.is_pressed(SDL_SCANCODE_LEFT, SDL_GetTicks(), TIME_TOLERANCE); 
+        bool R_RELEASED = key_handler.is_released(SDL_SCANCODE_RIGHT, SDL_GetTicks(), MILLISECONDS_TOLERANCE); 
+        bool L_RELEASED = key_handler.is_released(SDL_SCANCODE_LEFT, SDL_GetTicks(), MILLISECONDS_TOLERANCE); 
 
-        bool R_RELEASED = key_handler.is_released(SDL_SCANCODE_RIGHT, SDL_GetTicks(), TIME_TOLERANCE); 
-        bool L_RELEASED = key_handler.is_released(SDL_SCANCODE_LEFT, SDL_GetTicks(), TIME_TOLERANCE); 
+        bool R_PRESSED = key_handler.is_pressed(SDL_SCANCODE_RIGHT, SDL_GetTicks(), MILLISECONDS_TOLERANCE); 
+        bool L_PRESSED = key_handler.is_pressed(SDL_SCANCODE_LEFT, SDL_GetTicks(), MILLISECONDS_TOLERANCE); 
 
-        bool SPACE_PRESSED = key_handler.is_pressed(SDL_SCANCODE_SPACE, SDL_GetTicks(), TIME_TOLERANCE); 
-        bool SPACE_RELEASED = key_handler.is_released(SDL_SCANCODE_SPACE, SDL_GetTicks(), TIME_TOLERANCE); 
+        bool SPACE_PRESSED = key_handler.is_pressed(SDL_SCANCODE_SPACE, SDL_GetTicks(), MILLISECONDS_TOLERANCE); 
+        bool SPACE_RELEASED = key_handler.is_released(SDL_SCANCODE_SPACE, SDL_GetTicks(), MILLISECONDS_TOLERANCE); 
 
         if (L_PRESSED && R_PRESSED) {
             player->set_vel(vec2f(0, (player->vel).y));
@@ -134,7 +135,7 @@ int main(int argv, char* args[]) {
         } else if (R_PRESSED) {
             //std::cout << "RIGHT IS PRESSED" << std::endl;
             player->set_vel(vec2f(0.15, (player->vel).y));
-        } else if (L_RELEASED ) {
+        } else if (L_RELEASED) {
             //std::cout << "LEFT IS RELEASED" << std::endl;
             player->set_vel(vec2f(0, (player->vel).y));
         } else if (R_RELEASED) {
@@ -145,12 +146,13 @@ int main(int argv, char* args[]) {
         player->set_face();
 
         if (SPACE_PRESSED) {
-            std::cout << "SPACE IS PRESSED" << std::endl;
+            //std::cout << "SPACE IS PRESSED" << std::endl;
             player->boost(0.1);
         } else if (SPACE_RELEASED) {
-            //std::cout << "SPACE IS RELEASED" << std::endl;
+            std::cout << "SPACE IS RELEASED" << std::endl;
             player->jump();
         }
+
 
         uint64_t frame_time = SDL_GetTicks() - first_frame;
 
