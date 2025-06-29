@@ -31,7 +31,7 @@ struct Segment {
         }
         float u = qp.cross(r) / r.cross(s);
         float t = qp.cross(s) / r.cross(s);
-        if (t >= -0.1 && t <= 1.1 && u >= -0.1 && u <= 1.1) {
+        if (t >= 0 && t <= 1.0 && u >= 0 && u <= 1.0) {
             vec2f intersection = p + r * t;
             return {true, intersection};
         }
