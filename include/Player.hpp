@@ -18,7 +18,7 @@ struct Player : Entity {
     bool grounded;
     Segment on_top;
 
-    Player(vec2f pos, SDL_Texture* texture, SDL_Rect frame, int scale) :
+    Player(vec2f pos, std::vector<SDL_Texture*> texture, SDL_Rect frame, int scale) :
         Entity(pos, 
                vec2f(0, 0), 
                texture,
@@ -44,6 +44,7 @@ struct Player : Entity {
     }
 
     void make_grounded(Segment se) {
+        //std::cout << "GROUNDED" << std::endl;
         if (!grounded) {
             reset_movement();
         }
@@ -52,14 +53,20 @@ struct Player : Entity {
     }
 
     void set_face() {
-        if (vel.x > 0) facing_right = true;
-        else if (vel.x < 0) facing_right = false;
+        if (vel.x > 0) {
+            facing_right = true;
+            texture_to_display = 0;
+        }
+        else if (vel.x < 0) {
+            facing_right = false;
+            texture_to_display = 1;
+        }
     }
 
     vec2f boost(const float bst) {
         //std::cout << "adding to buffer: ";
         buffer_held -= vec2f(0, bst);
-        buffer_held.y = std::max(buffer_held.y, -1.0f);
+        buffer_held.y = std::max(buffer_held.y, -MAX_JUMPING_BUFFER);
         return buffer_held;
     }
 
@@ -70,7 +77,7 @@ struct Player : Entity {
 
     void reset_movement() {
         vel = accel = vec2f(0, 0);
-        std::cout << "RESETING MOVEMENT" << std::endl;
+        //std::cout << "RESETING MOVEMENT" << std::endl;
     }
 
     void reset_gravity() override {
@@ -87,7 +94,7 @@ struct Player : Entity {
         //std::cout << "MOVING WITH VEL = " << vel << std::endl;
         pos += vel;
         vel += accel;
-        if (grounded && (pos.x < on_top.left_most() - 1 || pos.x > on_top.right_most() + 1)) {
+        if (pos.x < on_top.left_most() - 1 || pos.x > on_top.right_most() + 1) {
             grounded = false;
         }
         return pos;
@@ -99,7 +106,6 @@ struct Player : Entity {
         move();
         Side ret = NONE;
         if (pos.x < 0) {
-            //vel = vel.reflect_by(vec2f(1, 0));
             vel.x = 0;
             pos.x = 0;
             //std::cout << "LEFT WALL with vel = " << vel << std::endl;
@@ -107,7 +113,6 @@ struct Player : Entity {
         }
 
         if (pos.x + scale * frame.w > BOUND_WIDTH) {
-            //vel = vel.reflect_by(vec2f(-1, 0));
             vel.x = 0;
             pos.x = BOUND_WIDTH - scale * frame.w;
             //std::cout << "RIGHT WALL with vel = " << vel << std::endl;
@@ -115,21 +120,17 @@ struct Player : Entity {
         }
 
         if (pos.y < 0) {
-            vel = vel.reflect_by(vec2f(0, 1));
             ret = UP;
         }
 
         if (pos.y + scale * frame.h > BOUND_HEIGHT) {
-            //std::cout << "GROUNDED ON FLOOR, on_top = " << GROUND_LEFT_BOUND << ", " << GROUND_RIGHT_BOUND 
-             //   << ", vel = " << vel << " accell = " << accel << std::endl;
             vel.y = 0;
             make_grounded(Segment(GROUND_LEFT_BOUND, GROUND_RIGHT_BOUND, DOWN));
             ret = DOWN;
+            //std::cout << "GROUNDED ON FLOOR " << GROUND_LEFT_BOUND << ", " << GROUND_RIGHT_BOUND 
+                // << ", vel = " << vel << " accell = " << accel << std::endl;
         }
 
-        if (ret == NONE) {
-            //std::cout << "NO WALL" << std::endl;
-        }
         return ret;
     }
 
@@ -174,6 +175,10 @@ struct Player : Entity {
             }
         }
         return NONE;
+    }
+
+    void setTextureToDisplay(size_t to) override {
+        texture_to_display = to;
     }
 
     void set_vel(vec2f _vel) {

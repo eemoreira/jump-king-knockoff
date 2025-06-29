@@ -40,7 +40,7 @@ struct RenderWindow {
         dest.w = en->scale * en->frame.w;
         dest.h = en->scale * en->frame.h;
 
-        SDL_RenderCopy(renderer, en->texture, &src, &dest);
+        SDL_RenderCopy(renderer, en->texture[en->texture_to_display], &src, &dest);
     }
     void renderRectangle(Rectangle* shape) {
         std::array<int, 6> ind = {{0, 1, 2, 0, 2, 3}};

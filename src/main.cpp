@@ -25,52 +25,9 @@ int main(int argv, char* args[]) {
 
     RenderWindow win("jump king - hehe", WIDTH, HEIGHT);
 
-    //SDL_Texture* grass = win.loadTexture("res/gfx/ground_grass_1.png");
     SDL_Texture* block = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/block.png");
-//    SDL_Texture* plat = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/platforms.png");
-    SDL_Texture* static_knight = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/static_knight.png");
-
-//    std::vector<std::unique_ptr<Entity>> grass_blocks;
-//
-//    SDL_Rect grass_rect;
-//    grass_rect.x = grass_rect.y = 0;
-//    grass_rect.w = grass_rect.h = 32;
-
-//  for (int i = 0; i < FLOOR_SIZE; i++) {
-//      grass_blocks.emplace_back(
-//              std::make_unique<Entity>(vec2f(32 * i, HEIGHT - 32), 
-//                                       vec2f(0, 0),
-//                                       grass, 
-//                                       grass_rect, 
-//                                       1)
-//      );
-//  }
-
-//    std::vector<std::unique_ptr<Entity>> platforms;
-//
-//    SDL_Rect plat_rect;
-//    plat_rect.x = plat_rect.y = 0;
-//    plat_rect.w = 16;
-//    plat_rect.h = 8;
-
-//    const int NUM_PLATFORMS = 5;
-//    for (int i = 1; i <= NUM_PLATFORMS; i++) {
-//        platforms.emplace_back(std::make_unique<Entity>(
-//                    vec2f(0, HEIGHT - 100 * i), 
-//                    vec2f(0.1, 0),
-//                    plat, 
-//                    plat_rect, 
-//                    3)
-//        );
-//        platforms.emplace_back(std::make_unique<Entity>(
-//                    vec2f(WIDTH - 16 * 3, HEIGHT - 100 * i), 
-//                    vec2f(-0.1, 0),
-//                    plat, 
-//                    plat_rect, 
-//                    3)
-//        );
-//    }
-//
+    SDL_Texture* knight_facing_right = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/knight_facing_right.png");
+    SDL_Texture* knight_facing_left = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/knight_facing_left.png");
 
     SDL_Rect player_rect;
     player_rect.x = player_rect.y = 0;
@@ -79,7 +36,7 @@ int main(int argv, char* args[]) {
 
     std::unique_ptr<Player> player_ptr = std::make_unique<Player>(
             vec2f(100, HEIGHT - 4*player_rect.h),
-            static_knight, 
+            std::vector<SDL_Texture*> {knight_facing_right, knight_facing_left}, 
             player_rect, 
             4
     );
@@ -118,40 +75,44 @@ int main(int argv, char* args[]) {
         }
 
 
-        bool R_RELEASED = key_handler.is_released(SDL_SCANCODE_RIGHT, SDL_GetTicks(), MILLISECONDS_TOLERANCE); 
-        bool L_RELEASED = key_handler.is_released(SDL_SCANCODE_LEFT, SDL_GetTicks(), MILLISECONDS_TOLERANCE); 
+        bool R_RELEASED = key_handler.is_released(SDL_SCANCODE_RIGHT, SDL_GetTicks(), 0); 
+        bool L_RELEASED = key_handler.is_released(SDL_SCANCODE_LEFT, SDL_GetTicks(), 0); 
 
         bool R_PRESSED = key_handler.is_pressed(SDL_SCANCODE_RIGHT, SDL_GetTicks(), MILLISECONDS_TOLERANCE); 
         bool L_PRESSED = key_handler.is_pressed(SDL_SCANCODE_LEFT, SDL_GetTicks(), MILLISECONDS_TOLERANCE); 
 
-        bool SPACE_PRESSED = key_handler.is_pressed(SDL_SCANCODE_SPACE, SDL_GetTicks(), MILLISECONDS_TOLERANCE); 
-        bool SPACE_RELEASED = key_handler.is_released(SDL_SCANCODE_SPACE, SDL_GetTicks(), MILLISECONDS_TOLERANCE); 
+        bool SPACE_PRESSED = key_handler.is_pressed(SDL_SCANCODE_SPACE, SDL_GetTicks(), 0); 
+        bool SPACE_RELEASED = key_handler.is_released(SDL_SCANCODE_SPACE, SDL_GetTicks(), 0); 
 
-        if (L_PRESSED && R_PRESSED) {
-            player->set_vel(vec2f(0, (player->vel).y));
-        } else if (L_PRESSED) {
-            //std::cout << "LEFT IS PRESSED" << std::endl;
-            player->set_vel(vec2f(-0.15, (player->vel).y));
-        } else if (R_PRESSED) {
-            //std::cout << "RIGHT IS PRESSED" << std::endl;
-            player->set_vel(vec2f(0.15, (player->vel).y));
-        } else if (L_RELEASED) {
-            //std::cout << "LEFT IS RELEASED" << std::endl;
-            player->set_vel(vec2f(0, (player->vel).y));
-        } else if (R_RELEASED) {
-            //std::cout << "RIGHT IS RELEASED" << std::endl;
-            player->set_vel(vec2f(0, (player->vel).y));
+        if (player->grounded) {
+            if (L_PRESSED && R_PRESSED) {
+                player->set_vel(vec2f(0, (player->vel).y));
+            } else if (L_PRESSED) {
+                //std::cout << "LEFT IS PRESSED" << std::endl;
+                player->set_vel(vec2f(-PLAYER_X_VELOCITY, (player->vel).y));
+            } else if (R_PRESSED) {
+                //std::cout << "RIGHT IS PRESSED" << std::endl;
+                player->set_vel(vec2f(PLAYER_X_VELOCITY, (player->vel).y));
+            } else if (L_RELEASED) {
+                //std::cout << "LEFT IS RELEASED" << std::endl;
+                player->set_vel(vec2f(0, (player->vel).y));
+            } else if (R_RELEASED) {
+                //std::cout << "RIGHT IS RELEASED" << std::endl;
+                player->set_vel(vec2f(0, (player->vel).y));
+            }
+
+            player->set_face();
+
+            if (SPACE_PRESSED) {
+                //std::cout << "SPACE IS PRESSED" << std::endl;
+                player->boost(0.1);
+            } else if (SPACE_RELEASED) {
+                //std::cout << "SPACE IS RELEASED" << std::endl;
+                player->jump();
+            }
         }
 
-        player->set_face();
-
-        if (SPACE_PRESSED) {
-            //std::cout << "SPACE IS PRESSED" << std::endl;
-            player->boost(0.1);
-        } else if (SPACE_RELEASED) {
-            std::cout << "SPACE IS RELEASED" << std::endl;
-            player->jump();
-        }
+        std::cout << (player->grounded ? "GROUNDED" : "NOT GROUNDED") << std::endl;
 
 
         uint64_t frame_time = SDL_GetTicks() - first_frame;
