@@ -46,12 +46,14 @@ struct RenderWindow {
         std::array<int, 6> ind = {{0, 1, 2, 0, 2, 3}};
         SDL_RenderGeometry(renderer, shape->texture, (shape->vertex).data(), (shape->vertex).size(), ind.data(), 6); 
     }
-    void render(Map& mapa) {
+    void render(Map& mapa, uint32_t scene) {
         for (auto& en : mapa.ens) {
             renderEntity(en.get());
         }
-        for (auto& block : mapa.blocks) {
-            renderRectangle(block.get());
+        for (auto& [block, block_scene] : mapa.blocks) {
+            if (block_scene == scene) {
+                renderRectangle(block.get());
+            }
         }
     }
     void clear() { SDL_RenderClear(renderer); }

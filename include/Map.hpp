@@ -11,51 +11,42 @@
 #include "Player.hpp"
 #include "Rectangle.hpp"
 #include "Segment.hpp"
+#include <utility>
 
 #include "constants.h"
 
 struct Map {
     std::vector<std::unique_ptr<Entity>> ens;
-    std::vector<std::unique_ptr<Rectangle>> blocks;
+    std::vector<std::pair<std::unique_ptr<Rectangle>, uint32_t>> blocks;
 
     void addEntity(std::unique_ptr<Entity> en) {
         ens.emplace_back(std::move(en));
     }
-    void addRectangle(std::unique_ptr<Rectangle> rec) {
-        blocks.emplace_back(std::move(rec));
+    void addRectangle(std::unique_ptr<Rectangle> rec, uint32_t scene) {
+        blocks.emplace_back(std::move(rec), scene);
     }
 
     bool inside(float me, float l, float r) {
         return me >= l && me <= r;
     }
 
-    bool check_collision(int i, int j) {
-        return ens[i]->collide(ens[j].get());
-    }
-
-    void move() {
+    void move(uint32_t scene) {
         for (auto& en : ens) {
             bool col = false;
 
             // hit ground
             col |= en->move_bounded(WIDTH, HEIGHT) == DOWN;
 
-            for (auto& block : blocks) {
-                // on top of a block
-                col |= en->collide_with(block.get()) == UP;
+            for (auto& [block, block_scene] : blocks) {
+                if (scene == block_scene) {
+                    // on top of a block
+                    col |= en->collide_with(block.get()) == UP;
+                }
             }
 
 
             if (!col) {
                 en->reset_gravity();
-            }
-        }
-    }
-
-    void collide() {
-        for (int i = 0; i < int(ens.size()); i++) {
-            for (int j = 0; j < i; j++) {
-                if (check_collision(i, j)) {}
             }
         }
     }

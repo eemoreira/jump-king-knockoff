@@ -17,6 +17,7 @@ struct Player : Entity {
     bool facing_right;
     bool grounded;
     Segment on_top;
+    uint32_t scene;
 
     Player(vec2f pos, std::vector<SDL_Texture*> texture, SDL_Rect frame, int scale) :
         Entity(pos, 
@@ -26,7 +27,8 @@ struct Player : Entity {
                scale),
                buffer_held(),
                accel(),
-               facing_right(true) 
+               facing_right(true),
+               scene(0)
         {
             make_grounded(Segment(GROUND_LEFT_BOUND, GROUND_RIGHT_BOUND, DOWN));
         }
@@ -63,9 +65,9 @@ struct Player : Entity {
         }
     }
 
-    vec2f boost(const float bst) {
+    vec2f boost() {
         //std::cout << "adding to buffer: ";
-        buffer_held -= vec2f(0, bst);
+        buffer_held -= vec2f(0, BOOST);
         buffer_held.y = std::max(buffer_held.y, -MAX_JUMPING_BUFFER);
         return buffer_held;
     }
@@ -121,15 +123,26 @@ struct Player : Entity {
 
         if (pos.y < 0) {
             ret = UP;
+            scene++;
+            pos.y = BOUND_HEIGHT;
+            std::cout << "GOING TO NEXT SCENE = " << scene << std::endl;
+            return UP;
         }
 
-        if (pos.y + scale * frame.h > BOUND_HEIGHT) {
+        if (scene == 0 && pos.y + scale * frame.h > BOUND_HEIGHT) {
             vel.y = 0;
             make_grounded(Segment(GROUND_LEFT_BOUND, GROUND_RIGHT_BOUND, DOWN));
             ret = DOWN;
-            //std::cout << "GROUNDED ON FLOOR " << GROUND_LEFT_BOUND << ", " << GROUND_RIGHT_BOUND 
-                // << ", vel = " << vel << " accell = " << accel << std::endl;
+           // std::cout << "GROUNDED ON FLOOR " << GROUND_LEFT_BOUND << ", " << GROUND_RIGHT_BOUND 
+           //     << ", vel = " << vel << " accell = " << accel << std::endl;
         }
+        if (scene > 0 && pos.y > BOUND_HEIGHT) {
+            std::cout << "GOING DOWN ONE SCENE" << std::endl;
+            scene--;
+            pos.y = 0;
+            ret = DOWN;
+        }
+
 
         return ret;
     }
@@ -164,8 +177,8 @@ struct Player : Entity {
                 vec2f normal = se.normal();
                 std::cout << "INTERSECT segment :" << se.p << ", " << se.q << ", NORMAL: " << normal << std::endl;
                 if (se.side == UP) {
-                    std::cout << "RESETING" << std::endl;
-                    pos.y = se.p.y - scale * frame.h - 0.2;
+                    std::cout << "RESETING" << std::endl; 
+                    pos.y = se.p.y - scale * frame.h;
                     make_grounded(se);
                     reset_movement();
                 } else {

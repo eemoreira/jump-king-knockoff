@@ -18,6 +18,7 @@ int main(int argv, char* args[]) {
 		std::cout << "ERROR ON SDL_INIT: " << SDL_GetError() << std::endl; 
 		return 1;
 	}
+
 	if (!IMG_Init(IMG_INIT_PNG)) {
 		std::cout << "ERROR ON IMG_INIT: " << IMG_GetError() << std::endl; 
 		return 1;
@@ -52,7 +53,24 @@ int main(int argv, char* args[]) {
                 200,
                 300
         );
-        mapa.addRectangle(std::move(rec));
+        mapa.addRectangle(std::move(rec), 0);
+    }
+    {
+        auto rec1 = std::make_unique<Rectangle>(
+                block,
+                vec2f(0, HEIGHT - 100),
+                300,
+                100
+        );
+        mapa.addRectangle(std::move(rec1), 1);
+
+        auto rec2 = std::make_unique<Rectangle>(
+                block,
+                vec2f(100, 0),
+                500,
+                100
+        );
+        mapa.addRectangle(std::move(rec2), 1);
     }
 
     KeyHandler key_handler;
@@ -105,14 +123,13 @@ int main(int argv, char* args[]) {
 
             if (SPACE_PRESSED) {
                 //std::cout << "SPACE IS PRESSED" << std::endl;
-                player->boost(0.1);
+                player->boost();
             } else if (SPACE_RELEASED) {
                 //std::cout << "SPACE IS RELEASED" << std::endl;
                 player->jump();
             }
         }
 
-        std::cout << (player->grounded ? "GROUNDED" : "NOT GROUNDED") << std::endl;
 
 
         uint64_t frame_time = SDL_GetTicks() - first_frame;
@@ -121,9 +138,11 @@ int main(int argv, char* args[]) {
             SDL_Delay(frame_time - frame_delay);
         }
 
+        uint32_t scene = player->scene;
+
         win.clear();
-        mapa.move();
-        win.render(mapa);
+        mapa.move(scene);
+        win.render(mapa, scene);
         win.display();
     }
 
