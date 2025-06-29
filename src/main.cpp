@@ -29,6 +29,8 @@ int main(int argv, char* args[]) {
     SDL_Texture* block = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/block.png");
     SDL_Texture* knight_facing_right = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/knight_facing_right.png");
     SDL_Texture* knight_facing_left = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/knight_facing_left.png");
+    SDL_Texture* crouched_knight_facing_right = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/crouched_knight_facing_right.png");
+    SDL_Texture* crouched_knight_facing_left = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/crouched_knight_facing_left.png");
 
     SDL_Rect player_rect;
     player_rect.x = player_rect.y = 0;
@@ -37,7 +39,7 @@ int main(int argv, char* args[]) {
 
     std::unique_ptr<Player> player_ptr = std::make_unique<Player>(
             vec2f(100, HEIGHT - 4*player_rect.h),
-            std::vector<SDL_Texture*> {knight_facing_right, knight_facing_left}, 
+            std::vector<SDL_Texture*> {knight_facing_right, knight_facing_left, crouched_knight_facing_right, crouched_knight_facing_left}, 
             player_rect, 
             4
     );
@@ -103,31 +105,31 @@ int main(int argv, char* args[]) {
         bool SPACE_RELEASED = key_handler.is_released(SDL_SCANCODE_SPACE, SDL_GetTicks(), 0); 
 
         if (player->grounded) {
-            if (L_PRESSED && R_PRESSED) {
-                player->set_vel(vec2f(0, (player->vel).y));
-            } else if (L_PRESSED) {
-                //std::cout << "LEFT IS PRESSED" << std::endl;
-                player->set_vel(vec2f(-PLAYER_X_VELOCITY, (player->vel).y));
-            } else if (R_PRESSED) {
-                //std::cout << "RIGHT IS PRESSED" << std::endl;
-                player->set_vel(vec2f(PLAYER_X_VELOCITY, (player->vel).y));
-            } else if (L_RELEASED) {
-                //std::cout << "LEFT IS RELEASED" << std::endl;
-                player->set_vel(vec2f(0, (player->vel).y));
-            } else if (R_RELEASED) {
-                //std::cout << "RIGHT IS RELEASED" << std::endl;
-                player->set_vel(vec2f(0, (player->vel).y));
-            }
-
-            player->set_face();
-
             if (SPACE_PRESSED) {
-                //std::cout << "SPACE IS PRESSED" << std::endl;
+                std::cout << "BOOSTING" << std::endl;
                 player->boost();
+                player->set_vel(vec2f(0, 0));
             } else if (SPACE_RELEASED) {
                 //std::cout << "SPACE IS RELEASED" << std::endl;
                 player->jump();
+            } else {
+                if (L_PRESSED && R_PRESSED) {
+                    player->set_vel(vec2f(0, (player->vel).y));
+                } else if (L_PRESSED) {
+                    //std::cout << "LEFT IS PRESSED" << std::endl;
+                    player->set_vel(vec2f(-PLAYER_X_VELOCITY, (player->vel).y));
+                } else if (R_PRESSED) {
+                    //std::cout << "RIGHT IS PRESSED" << std::endl;
+                    player->set_vel(vec2f(PLAYER_X_VELOCITY, (player->vel).y));
+                } else if (L_RELEASED) {
+                    //std::cout << "LEFT IS RELEASED" << std::endl;
+                    player->set_vel(vec2f(0, (player->vel).y));
+                } else if (R_RELEASED) {
+                    //std::cout << "RIGHT IS RELEASED" << std::endl;
+                    player->set_vel(vec2f(0, (player->vel).y));
+                }
             }
+
         }
 
 
@@ -138,6 +140,7 @@ int main(int argv, char* args[]) {
             SDL_Delay(frame_time - frame_delay);
         }
 
+        player->set_face();
         uint32_t scene = player->scene;
 
         win.clear();

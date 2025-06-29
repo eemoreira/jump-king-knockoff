@@ -57,11 +57,12 @@ struct Player : Entity {
     void set_face() {
         if (vel.x > 0) {
             facing_right = true;
-            texture_to_display = 0;
+            if (texture_to_display & 1) texture_to_display ^= 1;
         }
         else if (vel.x < 0) {
             facing_right = false;
             texture_to_display = 1;
+            if (~texture_to_display & 1) texture_to_display ^= 1;
         }
     }
 
@@ -69,16 +70,19 @@ struct Player : Entity {
         //std::cout << "adding to buffer: ";
         buffer_held -= vec2f(0, BOOST);
         buffer_held.y = std::max(buffer_held.y, -MAX_JUMPING_BUFFER);
+        texture_to_display |= 2;
         return buffer_held;
     }
 
 
     void reset_boost() {
         buffer_held = vec2f(0, 0);
+        if (texture_to_display & 2) texture_to_display ^= 2;
     }
 
     void reset_movement() {
         vel = accel = vec2f(0, 0);
+        if (texture_to_display & 2) texture_to_display ^= 2;
         //std::cout << "RESETING MOVEMENT" << std::endl;
     }
 
@@ -99,6 +103,11 @@ struct Player : Entity {
         if (pos.x < on_top.left_most() - 1 || pos.x > on_top.right_most() + 1) {
             grounded = false;
         }
+
+        if (!(std::abs(vel.x) < 1e-9 && std::abs(vel.y) < 1e-9 && std::abs(accel.x) < 1e-9 && std::abs(accel.y) < 1e-9)) {
+            reset_boost();
+        }
+
         return pos;
     }
 
