@@ -18,6 +18,7 @@ struct Player : Entity {
     bool grounded;
     Segment on_top;
     uint32_t scene;
+    uint64_t time_factor;
 
     Player(vec2f pos, std::vector<SDL_Texture*> texture, SDL_Rect frame, int scale) :
         Entity(pos, 
@@ -28,7 +29,8 @@ struct Player : Entity {
                buffer_held(),
                accel(),
                facing_right(true),
-               scene(0)
+               scene(0),
+               time_factor(1)
         {
             make_grounded(Segment(GROUND_LEFT_BOUND, GROUND_RIGHT_BOUND, DOWN));
         }
@@ -49,6 +51,7 @@ struct Player : Entity {
         //std::cout << "GROUNDED" << std::endl;
         if (!grounded) {
             reset_movement();
+            reset_boost();
         }
         grounded = true;
         on_top = se;
@@ -67,13 +70,16 @@ struct Player : Entity {
     }
 
     vec2f boost() {
-        //std::cout << "adding to buffer: ";
-        buffer_held -= vec2f(0, BOOST);
-        buffer_held.y = std::max(buffer_held.y, -MAX_JUMPING_BUFFER);
+        if (buffer_held.isZero()) {
+            buffer_held = vec2f(0, -INITIAL_BOOST);
+        } else {
+            buffer_held -= vec2f(0, BOOST);
+            buffer_held.y = std::max(buffer_held.y, -MAX_JUMPING_BUFFER);
+        }
+
         texture_to_display |= 2;
         return buffer_held;
     }
-
 
     void reset_boost() {
         buffer_held = vec2f(0, 0);
@@ -97,14 +103,14 @@ struct Player : Entity {
     }
 
     vec2f move() { 
-        //std::cout << "MOVING WITH VEL = " << vel << std::endl;
-        pos += vel;
+        //std::cout << "MOVING WITH VEL = " << vel << ", AND TIME FACTOR = " << time_factor << std::endl;
+        pos += vel * time_factor;
         vel += accel;
         if (pos.x < on_top.left_most() - 1 || pos.x > on_top.right_most() + 1) {
             grounded = false;
         }
 
-        if (!(std::abs(vel.x) < 1e-9 && std::abs(vel.y) < 1e-9 && std::abs(accel.x) < 1e-9 && std::abs(accel.y) < 1e-9)) {
+        if (!(vel.isZero() && accel.isZero())) {
             reset_boost();
         }
 

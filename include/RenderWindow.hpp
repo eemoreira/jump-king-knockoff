@@ -17,7 +17,7 @@ struct RenderWindow {
         if (!window) {
             std::cout << "error creating window" << SDL_GetError() << std::endl;
         }
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     }
     SDL_Texture* loadTexture(const char* path) {
         SDL_Texture* texture = nullptr;
@@ -55,6 +55,9 @@ struct RenderWindow {
                 renderRectangle(block.get());
             }
         }
+    }
+    void setRenderTarget(Rectangle* rect) {
+        SDL_SetRenderTarget(renderer, rect->texture);
     }
     void clear() { SDL_RenderClear(renderer); }
     void display() { SDL_RenderPresent(renderer); }

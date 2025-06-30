@@ -26,7 +26,6 @@ int main(int argv, char* args[]) {
 
     RenderWindow win("jump king - hehe", WIDTH, HEIGHT);
 
-    SDL_Texture* block = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/block.png");
     SDL_Texture* knight_facing_right = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/knight_facing_right.png");
     SDL_Texture* knight_facing_left = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/knight_facing_left.png");
     SDL_Texture* crouched_knight_facing_right = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/crouched_knight_facing_right.png");
@@ -48,6 +47,8 @@ int main(int argv, char* args[]) {
 
     Map mapa;
     mapa.addEntity(std::move(player_ptr));
+
+    SDL_Texture* block = win.loadTexture("res/gfx/brackeys_platformer_assets/sprites/block.png");
     for (int i = 0; i < 2; i++) {
         auto rec = std::make_unique<Rectangle>(
                 block,
@@ -75,11 +76,17 @@ int main(int argv, char* args[]) {
         mapa.addRectangle(std::move(rec2), 1);
     }
 
+    SDL_Texture* background_texture = win.loadTexture("res/gfx/forest/Background/Background.png");
+    auto background = std::make_unique<Rectangle>(background_texture, vec2f(0, 0), WIDTH, HEIGHT);
+
+
+
     KeyHandler key_handler;
     bool running = true;
     SDL_Event event;
 
     uint64_t currentFrame = 0;
+    uint64_t last_frame_time = 1;
     SDL_Delay(1000);
     while (running) {
 
@@ -134,19 +141,23 @@ int main(int argv, char* args[]) {
 
 
 
-        uint64_t frame_time = SDL_GetTicks() - first_frame;
-
-        if (frame_time > frame_delay) {
-            SDL_Delay(frame_time - frame_delay);
-        }
 
         player->set_face();
         uint32_t scene = player->scene;
 
         win.clear();
+        win.renderRectangle(background.get());
+        win.setRenderTarget(background.get());
+
         mapa.move(scene);
         win.render(mapa, scene);
+
         win.display();
+
+        uint64_t frame_time = SDL_GetTicks() - first_frame + 1;
+        player->time_factor = last_frame_time;
+
+        last_frame_time = frame_time;
     }
 
 

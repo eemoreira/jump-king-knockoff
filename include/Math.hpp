@@ -4,6 +4,7 @@
 #include <cmath>
 #include <utility>
 
+const float EPS = 1e-9;
 bool inside(float me, float l, float r) {
     return me >= l && me <= r;
 }
@@ -75,6 +76,10 @@ struct vec2f {
 
     vec2f norm_perp() {
         return perp().unity();
+    }
+
+    bool isZero() {
+        return std::abs(x) < EPS && std::abs(y) < EPS;
     }
 
     vec2f rotate_by(float angle) {
