@@ -10,7 +10,7 @@
 struct Segment {
     vec2f p, q;
     Side side;
-    Segment(vec2f _p, vec2f _q, Side _side) : p(_p), q(_q), side(_side) {
+    Segment(vec2f _p, vec2f _q, Side _side = NONE) : p(_p), q(_q), side(_side) {
     }
 
     Segment() {}

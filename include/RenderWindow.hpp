@@ -19,6 +19,7 @@ struct RenderWindow {
         }
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     }
+
     SDL_Texture* loadTexture(const char* path) {
         SDL_Texture* texture = nullptr;
 
@@ -30,6 +31,7 @@ struct RenderWindow {
 
         return texture;
     }
+
     void renderEntity(Entity* en) {
         SDL_Rect src, dest;
 
@@ -46,6 +48,10 @@ struct RenderWindow {
         std::array<int, 6> ind = {{0, 1, 2, 0, 2, 3}};
         SDL_RenderGeometry(renderer, shape->texture, (shape->vertex).data(), (shape->vertex).size(), ind.data(), 6); 
     }
+    void renderTriangle(Triangle* shape) {
+        std::array<int, 3> ind = {{0, 1, 2}};
+        SDL_RenderGeometry(renderer, shape->texture, (shape->vertex).data(), (shape->vertex).size(), ind.data(), 3);
+    }
     void render(Map& mapa, uint32_t scene) {
         for (auto& en : mapa.ens) {
             renderEntity(en.get());
@@ -53,6 +59,11 @@ struct RenderWindow {
         for (auto& [block, block_scene] : mapa.blocks) {
             if (block_scene == scene) {
                 renderRectangle(block.get());
+            }
+        }
+        for (auto& [triangle, triangle_scene] : mapa.triangles) {
+            if (triangle_scene == scene) {
+                renderTriangle(triangle.get());
             }
         }
     }

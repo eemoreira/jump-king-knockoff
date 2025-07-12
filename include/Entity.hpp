@@ -26,9 +26,8 @@ struct Entity {
 
     virtual Side move_bounded(int BOUND_WIDTH, int BOUND_HEIGHT) { return NONE; }
 
-    virtual vec2f move() {
+    virtual void move() {
         pos += vel;
-        return pos;
     }
 
 

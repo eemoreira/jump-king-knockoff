@@ -11,6 +11,7 @@
 #include "Map.hpp"
 #include "KeyHandler.hpp"
 #include "Rectangle.hpp"
+#include "Triangle.hpp"
 #include "constants.h"
 
 int main(int argv, char* args[]) {
@@ -76,6 +77,14 @@ int main(int argv, char* args[]) {
         mapa.addRectangle(std::move(rec2), 1);
     }
 
+    auto tri1 = std::make_unique<Triangle>(
+            block,
+            vec2f(400, 400),
+            vec2f(500, 500),
+            vec2f(400, 600)
+    );
+    mapa.addTriangle(std::move(tri1), 0);
+
     SDL_Texture* background_texture = win.loadTexture("res/gfx/forest/Background/Background.png");
     auto background = std::make_unique<Rectangle>(background_texture, vec2f(0, 0), WIDTH, HEIGHT);
 
@@ -105,8 +114,8 @@ int main(int argv, char* args[]) {
         bool R_RELEASED = key_handler.is_released(SDL_SCANCODE_RIGHT, SDL_GetTicks(), 0); 
         bool L_RELEASED = key_handler.is_released(SDL_SCANCODE_LEFT, SDL_GetTicks(), 0); 
 
-        bool R_PRESSED = key_handler.is_pressed(SDL_SCANCODE_RIGHT, SDL_GetTicks(), MILLISECONDS_TOLERANCE); 
-        bool L_PRESSED = key_handler.is_pressed(SDL_SCANCODE_LEFT, SDL_GetTicks(), MILLISECONDS_TOLERANCE); 
+        bool R_PRESSED = key_handler.is_pressed(SDL_SCANCODE_RIGHT, SDL_GetTicks(), 0); 
+        bool L_PRESSED = key_handler.is_pressed(SDL_SCANCODE_LEFT, SDL_GetTicks(), 0); 
 
         bool SPACE_PRESSED = key_handler.is_pressed(SDL_SCANCODE_SPACE, SDL_GetTicks(), 0); 
         bool SPACE_RELEASED = key_handler.is_released(SDL_SCANCODE_SPACE, SDL_GetTicks(), 0); 
@@ -117,9 +126,9 @@ int main(int argv, char* args[]) {
                 player->boost();
                 player->set_vel(vec2f(0, 0));
             } else if (SPACE_RELEASED) {
-                //std::cout << "SPACE IS RELEASED" << std::endl;
+                std::cout << "SPACE IS RELEASED" << std::endl;
                 player->jump();
-            } else {
+            } else if (!player->boosting) {
                 if (L_PRESSED && R_PRESSED) {
                     player->set_vel(vec2f(0, (player->vel).y));
                 } else if (L_PRESSED) {

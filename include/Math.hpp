@@ -98,6 +98,7 @@ struct vec2f {
         return *this - reflection_axis * 2 * dot(reflection_axis);
     }
 
+
     friend std::ostream& operator << (std::ostream& out, vec2f a) {
         return out << "(" << a.x << ", " << a.y << ")";
     }

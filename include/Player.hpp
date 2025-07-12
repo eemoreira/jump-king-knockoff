@@ -16,6 +16,7 @@ struct Player : Entity {
     vec2f accel;
     bool facing_right;
     bool grounded;
+    bool boosting;
     Segment on_top;
     uint32_t scene;
     uint64_t time_factor;
@@ -33,15 +34,16 @@ struct Player : Entity {
                time_factor(1)
         {
             make_grounded(Segment(GROUND_LEFT_BOUND, GROUND_RIGHT_BOUND, DOWN));
+            boosting = false;
         }
 
     Player() : Entity() {}
 
     void jump() {
         if (!grounded) return;
-        //std::cout << "BUFFER HELD = " << buffer_held << std::endl;
         vel += buffer_held;
         vel.x = facing_right ? PLAYER_X_VELOCITY : -PLAYER_X_VELOCITY;
+        std::cout << "vel after jump: " << vel << std::endl;
         reset_boost();
         reset_gravity();
         grounded = false;
@@ -76,6 +78,7 @@ struct Player : Entity {
             buffer_held -= vec2f(0, BOOST);
             buffer_held.y = std::max(buffer_held.y, -MAX_JUMPING_BUFFER);
         }
+        boosting = true;
 
         texture_to_display |= 2;
         return buffer_held;
@@ -83,6 +86,7 @@ struct Player : Entity {
 
     void reset_boost() {
         buffer_held = vec2f(0, 0);
+        boosting = false;
         if (texture_to_display & 2) texture_to_display ^= 2;
     }
 
@@ -102,8 +106,8 @@ struct Player : Entity {
         }
     }
 
-    vec2f move() { 
-        //std::cout << "MOVING WITH VEL = " << vel << ", AND TIME FACTOR = " << time_factor << std::endl;
+    void move() { 
+        if (boosting) return;
         pos += vel * time_factor;
         vel += accel;
         if (pos.x < on_top.left_most() - 1 || pos.x > on_top.right_most() + 1) {
@@ -114,7 +118,6 @@ struct Player : Entity {
             reset_boost();
         }
 
-        return pos;
     }
 
     Side move_bounded(int BOUND_WIDTH, int BOUND_HEIGHT) override {

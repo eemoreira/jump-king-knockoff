@@ -10,6 +10,7 @@
 #include "Entity.hpp"
 #include "Player.hpp"
 #include "Rectangle.hpp"
+#include "Triangle.hpp"
 #include "Segment.hpp"
 #include <utility>
 
@@ -18,6 +19,7 @@
 struct Map {
     std::vector<std::unique_ptr<Entity>> ens;
     std::vector<std::pair<std::unique_ptr<Rectangle>, uint32_t>> blocks;
+    std::vector<std::pair<std::unique_ptr<Triangle>, uint32_t>> triangles;
 
     void addEntity(std::unique_ptr<Entity> en) {
         ens.emplace_back(std::move(en));
@@ -25,9 +27,8 @@ struct Map {
     void addRectangle(std::unique_ptr<Rectangle> rec, uint32_t scene) {
         blocks.emplace_back(std::move(rec), scene);
     }
-
-    bool inside(float me, float l, float r) {
-        return me >= l && me <= r;
+    void addTriangle(std::unique_ptr<Triangle> rec, uint32_t scene) {
+        triangles.emplace_back(std::move(rec), scene);
     }
 
     void move(uint32_t scene) {
@@ -43,6 +44,12 @@ struct Map {
                     col |= en->collide_with(block.get()) == UP;
                 }
             }
+
+           // for (auto& [triangle, triangle_scene] : triangles) {
+           //     if (scene == triangle_scene) {
+           //         en->collide_with(triangle.get());
+           //     }
+           // }
 
 
             if (!col) {
